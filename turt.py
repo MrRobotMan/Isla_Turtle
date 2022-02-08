@@ -75,8 +75,9 @@ def change_speed(turt: turtle.Turtle, delta: int, speed_var: tk.Variable) -> Non
     speed_var.set(turt.speed())
 
 
-def draw_grid(turt: turtle.Turtle) -> None:
+def draw_grid() -> None:
     """Draw the initial grid."""
+    turt = turtle.Turtle()
     turt.penup()
     turt.speed(0)
     turt.hideturtle()
@@ -104,8 +105,9 @@ def draw_grid(turt: turtle.Turtle) -> None:
     turt.penup()
 
 
-def init_turt(turt: turtle.Turtle) -> turtle.Turtle:
+def init_turt(turt: turtle.Turtle, speed_var: tk.Variable) -> None:
     """Put the turtle in its starting spot."""
+    turt.clear()
     turt.penup()
     turt.speed(0)
     turt.hideturtle()
@@ -120,25 +122,28 @@ def init_turt(turt: turtle.Turtle) -> turtle.Turtle:
     # Set the turtle's starting heading
     turt.right(random.choice((0, 90, 180, 270)))
     turt.speed(5)
+    speed_var.set(turt.speed())
     turt.showturtle()
+    turt.pensize(3)
     turt.pendown()
-    return turt
 
 
 def info_pane(turt: turtle.Turtle, speed_var: tk.Variable) -> tk.Toplevel:
+    """Add an info pane to show commands and turtle speed."""
     pane = tk.Toplevel()
     tk.Label(pane, text="Commands:").pack()
     tk.Label(pane, text="Forward: Up Arrow").pack()
     tk.Label(pane, text="Right: Right Arrow").pack()
     tk.Label(pane, text="Left: Left Arrow").pack()
-    tk.Label(pane, text="Color: c").pack()
+    tk.Label(pane, text="Change Color: c").pack()
     tk.Label(pane, text="Change Speed: f/s").pack()
-    tk.Label(pane, text="Exit: q").pack()
     speed_pane = tk.Frame(pane)
     tk.Label(speed_pane, text="Speed: ").pack(side="left")
     speed = tk.Label(speed_pane, textvariable=speed_var)
     speed.pack(side="right")
     speed_pane.pack()
+    tk.Label(pane, text="Reset: r").pack()
+    tk.Label(pane, text="Exit: q").pack()
     return pane
 
 
@@ -162,18 +167,19 @@ def main() -> None:
         height=BOUNDARIES.top - BOUNDARIES.bottom + 2 * STEP,
     )
     screen.title("Isla's Turtle Game.")
-    turt = turtle.Turtle()
     speed_var = tk.IntVar()
+    turt = turtle.Turtle()
+    turt.hideturtle()
     pane = info_pane(turt, speed_var)
     pane_position(screen, pane)
-    draw_grid(turt)
-    init_turt(turt)
-    speed_var.set(turt.speed())
+    draw_grid()
+    init_turt(turt, speed_var)
 
     screen.onkey(lambda: forward(turt), "Up")
     screen.onkey(lambda: right(turt), "Right")
     screen.onkey(lambda: left(turt), "Left")
     screen.onkey(lambda: color(turt), "c")
+    screen.onkey(lambda: init_turt(turt, speed_var), "r")
     screen.onkey(lambda: change_speed(turt, 1, speed_var), "f")
     screen.onkey(lambda: change_speed(turt, -1, speed_var), "s")
     screen.onkey(quit, "q")
