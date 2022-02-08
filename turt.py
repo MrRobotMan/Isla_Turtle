@@ -1,4 +1,5 @@
 import random
+import tkinter as tk
 import turtle
 from typing import NamedTuple
 
@@ -64,13 +65,14 @@ def left(turt: turtle.Turtle) -> None:
     turt.left(90)
 
 
-def change_speed(turt: turtle.Turtle, delta: int) -> None:
+def change_speed(turt: turtle.Turtle, delta: int, speed_var: tk.Variable) -> None:
     """Change the turtle speed in range 1, 10 inclusive"""
     current = turt.speed()
     new = current + delta
     if not 1 <= new <= 10:
         return
     turt.speed(new)
+    speed_var.set(turt.speed())
 
 
 def draw_grid(turt: turtle.Turtle) -> None:
@@ -123,6 +125,35 @@ def init_turt(turt: turtle.Turtle) -> turtle.Turtle:
     return turt
 
 
+def info_pane(turt: turtle.Turtle, speed_var: tk.Variable) -> tk.Toplevel:
+    pane = tk.Toplevel()
+    tk.Label(pane, text="Commands:").pack()
+    tk.Label(pane, text="Forward: Up Arrow").pack()
+    tk.Label(pane, text="Right: Right Arrow").pack()
+    tk.Label(pane, text="Left: Left Arrow").pack()
+    tk.Label(pane, text="Color: c").pack()
+    tk.Label(pane, text="Change Speed: f/s").pack()
+    tk.Label(pane, text="Exit: q").pack()
+    speed_pane = tk.Frame(pane)
+    tk.Label(speed_pane, text="Speed: ").pack(side="left")
+    speed = tk.Label(speed_pane, textvariable=speed_var)
+    speed.pack(side="right")
+    speed_pane.pack()
+    return pane
+
+
+def pane_position(screen: turtle.TurtleScreen, pane: tk.Toplevel) -> None:
+    canv = screen.getcanvas()
+    screen_position_x = canv.winfo_rootx()
+    screen_position_y = canv.winfo_rooty()
+
+    pane_width = pane.winfo_reqwidth()
+    loc_x = screen_position_x - 5 - pane_width
+    if loc_x < 0:
+        loc_x = screen_position_x + screen.window_width() + 5
+    pane.geometry(f"+{loc_x}+{screen_position_y}")
+
+
 def main() -> None:
     """Create the screen and turtle. Add callbacks to commands for the turtle."""
     screen = turtle.Screen()
@@ -132,15 +163,19 @@ def main() -> None:
     )
     screen.title("Isla's Turtle Game.")
     turt = turtle.Turtle()
+    speed_var = tk.IntVar()
+    pane = info_pane(turt, speed_var)
+    pane_position(screen, pane)
     draw_grid(turt)
     init_turt(turt)
+    speed_var.set(turt.speed())
 
     screen.onkey(lambda: forward(turt), "Up")
     screen.onkey(lambda: right(turt), "Right")
     screen.onkey(lambda: left(turt), "Left")
     screen.onkey(lambda: color(turt), "c")
-    screen.onkey(lambda: change_speed(turt, 1), "f")
-    screen.onkey(lambda: change_speed(turt, -1), "s")
+    screen.onkey(lambda: change_speed(turt, 1, speed_var), "f")
+    screen.onkey(lambda: change_speed(turt, -1, speed_var), "s")
     screen.onkey(quit, "q")
 
     screen.listen()
