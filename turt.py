@@ -10,17 +10,19 @@ GRID_WIDTH = 8
 GRID_HEIGHT = 8
 BOUNDARIES = points(
     -STEP * GRID_WIDTH // 2,
-    STEP * GRID_WIDTH // 2,
-    STEP * GRID_HEIGHT // 2,
+    +STEP * GRID_WIDTH // 2,
+    +STEP * GRID_HEIGHT // 2,
     -STEP * GRID_HEIGHT // 2,
 )
 
 
 def quit() -> None:
+    """Exit the program"""
     turtle.bye()
 
 
 def color(turt: turtle.Turtle) -> None:
+    """Set the turtle to a random color"""
     red = random.random()
     green = random.random()
     blue = random.random()
@@ -38,6 +40,7 @@ def get_heading(turt: turtle.Turtle) -> tuple[int, int]:
 
 
 def forward(turt: turtle.Turtle) -> None:
+    """Move forward if possible"""
     current_x, current_y = turt.position()
     heading_x, heading_y = get_heading(turt)
     new_x = round(current_x) + heading_x * STEP
@@ -52,14 +55,17 @@ def forward(turt: turtle.Turtle) -> None:
 
 
 def right(turt: turtle.Turtle) -> None:
+    """Turn right 90 degrees"""
     turt.right(90)
 
 
 def left(turt: turtle.Turtle) -> None:
+    """Turn left 90 degrees"""
     turt.left(90)
 
 
 def change_speed(turt: turtle.Turtle, delta: int) -> None:
+    """Change the turtle speed in range 1, 10 inclusive"""
     current = turt.speed()
     new = current + delta
     if not 1 <= new <= 10:
@@ -70,10 +76,12 @@ def change_speed(turt: turtle.Turtle, delta: int) -> None:
 def draw_grid(turt: turtle.Turtle) -> None:
     """Draw the initial grid."""
     turt.penup()
-    top = BOUNDARIES.top + STEP // 2
-    bottom = BOUNDARIES.bottom - STEP // 2
+    turt.speed(0)
+    turt.hideturtle()
     left = BOUNDARIES.left - STEP // 2
     right = BOUNDARIES.right + STEP // 2
+    top = BOUNDARIES.top + STEP // 2
+    bottom = BOUNDARIES.bottom - STEP // 2
     turt.goto(left, top)
     turt.pendown()
     # Make the rows
@@ -89,16 +97,16 @@ def draw_grid(turt: turtle.Turtle) -> None:
         turt.goto(left + STEP * i, edge[i % 2])
         if not left + STEP * i == right:
             turt.goto(left + STEP * (i + 1), edge[i % 2])
+    # Ensure the last edge is made.
     turt.goto(right, bottom)
     turt.penup()
 
 
-def init_turt() -> turtle.Turtle:
-    turt = turtle.Turtle()
+def init_turt(turt: turtle.Turtle) -> turtle.Turtle:
+    """Put the turtle in its starting spot."""
     turt.penup()
     turt.speed(0)
     turt.hideturtle()
-    draw_grid(turt)
     turt.shape("turtle")
     # Set the turtle's starting color
     color(turt=turt)
@@ -116,13 +124,16 @@ def init_turt() -> turtle.Turtle:
 
 
 def main() -> None:
+    """Create the screen and turtle. Add callbacks to commands for the turtle."""
     screen = turtle.Screen()
     screen.setup(
         width=BOUNDARIES.right - BOUNDARIES.left + 2 * STEP,
         height=BOUNDARIES.top - BOUNDARIES.bottom + 2 * STEP,
     )
     screen.title("Isla's Turtle Game.")
-    turt = init_turt()
+    turt = turtle.Turtle()
+    draw_grid(turt)
+    init_turt(turt)
 
     screen.onkey(lambda: forward(turt), "Up")
     screen.onkey(lambda: right(turt), "Right")
